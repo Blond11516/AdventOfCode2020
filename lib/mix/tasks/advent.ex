@@ -18,10 +18,10 @@ defmodule Mix.Tasks.Advent do
   end
 
   def run([day, part]) do
-    if !Enum.member?(["1", "2"], part) do
-      IO.puts("Invalid part value: #{part}")
-    else
+    if Enum.member?(["1", "2"], part) do
       run_day_part(day, part)
+    else
+      IO.puts("Invalid part value: #{part}")
     end
   end
 

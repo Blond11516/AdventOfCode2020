@@ -5,7 +5,7 @@ defmodule Advent.Solvers.Day1Test do
 
   describe "day 1" do
     test "part 1" do
-      assert Day1.solve(1, File.read!("inputs/day1.txt")) == 73371
+      assert Day1.solve(1, File.read!("inputs/day1.txt")) == 73_371
     end
 
     test "part 2" do

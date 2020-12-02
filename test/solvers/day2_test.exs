@@ -14,5 +14,9 @@ defmodule Advent.Solvers.Day2Test do
                """
              ) == 2
     end
+
+    test "part 2 solution" do
+      assert Day2.solve(1, File.read!("inputs/day2.txt")) == 458
+    end
   end
 end
