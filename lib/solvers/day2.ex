@@ -3,6 +3,14 @@ defmodule Advent.Solvers.Day2 do
     entries = parse_entries(input)
 
     entries
+    |> Enum.filter(&validate_sled_policy/1)
+    |> Enum.count()
+  end
+
+  def solve(2, input) do
+    entries = parse_entries(input)
+
+    entries
     |> Enum.filter(&validate_toboggan_policy/1)
     |> Enum.count()
   end
@@ -24,18 +32,25 @@ defmodule Advent.Solvers.Day2 do
     end)
   end
 
-  defp validate_toboggan_policy({min_count, max_count, letter, password}) do
-    letter =
-      letter
-      |> String.to_charlist()
-      |> List.first()
-
+  defp validate_sled_policy({min_count, max_count, letter, password}) do
     letter_occurrence_count =
       password
-      |> String.to_charlist()
+      |> String.graphemes()
       |> Enum.filter(&(&1 == letter))
       |> Enum.count()
 
     letter_occurrence_count >= min_count and letter_occurrence_count <= max_count
+  end
+
+  defp validate_toboggan_policy({first_pos, second_pos, letter, password}) do
+    graphemes = String.graphemes(password)
+
+    corresponding_positions_count =
+      [first_pos, second_pos]
+      |> Enum.map(&Enum.at(graphemes, &1 - 1))
+      |> Enum.filter(&(&1 == letter))
+      |> Enum.count()
+
+    corresponding_positions_count == 1
   end
 end
