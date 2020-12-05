@@ -1,4 +1,7 @@
 defmodule Advent.Solvers.Day2 do
+  @behaviour Advent.Solver
+
+  @impl Advent.Solver
   def solve(1, input) do
     entries = parse_entries(input)
 

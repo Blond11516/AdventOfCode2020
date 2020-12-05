@@ -1,4 +1,7 @@
 defmodule Advent.Solvers.Day3 do
+  @behaviour Advent.Solver
+
+  @impl Advent.Solver
   def solve(1, input) do
     input
     |> parse_map()

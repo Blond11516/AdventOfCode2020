@@ -1,4 +1,7 @@
 defmodule Advent.Solvers.Day1 do
+  @behaviour Advent.Solver
+
+  @impl Advent.Solver
   def solve(1, input) do
     numbers =
       input
