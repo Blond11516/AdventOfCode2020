@@ -8,6 +8,9 @@ defmodule Advent.Answer do
     |> String.trim()
     |> String.split()
     |> Enum.at(part - 1)
-    |> String.to_integer()
+    |> case do
+      nil -> nil
+      number -> String.to_integer(number)
+    end
   end
 end
