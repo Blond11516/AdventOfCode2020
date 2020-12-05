@@ -3,5 +3,6 @@ defmodule Advent.Solvers.Day do
 
   @impl Advent.Solver
   def solve(1, _input) do
+    0
   end
 end
