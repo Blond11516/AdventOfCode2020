@@ -11,6 +11,55 @@ defmodule Advent.Solvers.Day5 do
     |> Enum.max()
   end
 
+  def solve(2, input) do
+    input
+    |> String.trim()
+    |> String.split()
+    |> Enum.map(&find_seat/1)
+    |> MapSet.new()
+    |> find_missing_seat()
+  end
+
+  defp find_missing_seat(seats) do
+    present_rows =
+      seats
+      |> MapSet.new(fn {row, _col} -> row end)
+
+    seats = add_missing_seats(seats, present_rows)
+
+    # for row <- Enum.sort(present_rows) do
+    #   for col <- 0..7 do
+    #     if MapSet.member?(seats, {row, col}) do
+    #       IO.write(".")
+    #     else
+    #       IO.write("#")
+    #     end
+    #   end
+
+    #   IO.puts("")
+    # end
+
+    for row <- present_rows,
+        col <- 0..7,
+        seat = {row, col},
+        !MapSet.member?(seats, seat) do
+      seat
+    end
+    |> List.first()
+    |> calculate_seat_id()
+  end
+
+  defp add_missing_seats(seats, present_rows) do
+    min_row = Enum.min(present_rows)
+    max_row = Enum.max(present_rows)
+
+    for row <- [min_row, max_row],
+        col <- 0..7 do
+      {row, col}
+    end
+    |> Enum.reduce(seats, &MapSet.put(&2, &1))
+  end
+
   defp calculate_seat_id({row, col}), do: col + row * 8
 
   defp find_seat(boarding_pass) do
