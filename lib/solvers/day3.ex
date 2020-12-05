@@ -2,10 +2,28 @@ defmodule Advent.Solvers.Day3 do
   def solve(1, input) do
     input
     |> parse_map()
-    |> ride(3, 1)
+    |> ride({3, 1})
   end
 
-  defp ride(forest, right, down) do
+  def solve(2, input) do
+    forest =
+      input
+      |> parse_map()
+
+    slopes = [
+      {1, 1},
+      {3, 1},
+      {5, 1},
+      {7, 1},
+      {1, 2}
+    ]
+
+    slopes
+    |> Enum.map(&ride(forest, &1))
+    |> Enum.reduce(1, &Kernel.*/2)
+  end
+
+  defp ride(forest, {right, down}) do
     forest_height = Enum.count(forest)
 
     pattern_length =
@@ -13,15 +31,15 @@ defmodule Advent.Solvers.Day3 do
       |> Enum.at(0)
       |> Enum.count()
 
-    ride(forest, right, down, forest_height, pattern_length, 0, 0, 0)
+    ride(forest, {right, down}, forest_height, pattern_length, 0, 0, 0)
   end
 
-  defp ride(_forest, _right, _down, forest_height, _pattern_length, tree_count, _cur_x, cur_y)
+  defp ride(_forest, {_right, _down}, forest_height, _pattern_length, tree_count, _cur_x, cur_y)
        when cur_y >= forest_height do
     tree_count
   end
 
-  defp ride(forest, right, down, forest_height, pattern_length, tree_count, cur_x, cur_y) do
+  defp ride(forest, {right, down}, forest_height, pattern_length, tree_count, cur_x, cur_y) do
     pos =
       forest
       |> Enum.at(cur_y)
@@ -36,7 +54,7 @@ defmodule Advent.Solvers.Day3 do
         :open -> tree_count
       end
 
-    ride(forest, right, down, forest_height, pattern_length, tree_count, cur_x, cur_y)
+    ride(forest, {right, down}, forest_height, pattern_length, tree_count, cur_x, cur_y)
   end
 
   defp parse_map(input) do
