@@ -1,9 +1,10 @@
 defmodule Advent.Interpreter do
-  @enforce_keys [:source]
-  defstruct [:source, ip: 0, visited: MapSet.new(), acc: 0]
+  @enforce_keys [:source, :source_length]
+  defstruct [:source, :source_length, ip: 0, visited: MapSet.new(), acc: 0]
 
   @type t :: %__MODULE__{
-          source: %{String.t() => integer()},
+          source: %{integer() => {String.t(), integer()}},
+          source_length: integer(),
           ip: integer(),
           visited: MapSet.t(integer()),
           acc: number()
@@ -20,19 +21,27 @@ defmodule Advent.Interpreter do
       |> Enum.map(fn {instruction, index} -> {index, instruction} end)
       |> Map.new()
 
-    %__MODULE__{source: source}
+    %__MODULE__{source: source, source_length: Enum.count(source)}
   end
 
-  @spec run(Advent.Interpreter.t()) :: {:error, {:loop, map}}
-  def run(%__MODULE__{ip: ip, visited: visited} = interpreter) do
-    if MapSet.member?(visited, ip) do
-      {:error, {:loop, interpreter}}
-    else
-      interpreter = %__MODULE__{interpreter | visited: MapSet.put(visited, ip)}
+  @spec run(Advent.Interpreter.t()) :: {:error, {:loop, t()}} | {:error, {:ip_overflow, t()}} | {:ok, t()}
+  def run(%__MODULE__{ip: ip, visited: visited, source_length: source_length} = interpreter) do
+    cond do
+      MapSet.member?(visited, ip) ->
+        {:error, {:loop, interpreter}}
 
-      interpreter
-      |> execute()
-      |> run()
+      ip > source_length ->
+        {:error, {:ip_overflow, interpreter}}
+
+      ip == source_length ->
+        {:ok, interpreter}
+
+      true ->
+        interpreter = %__MODULE__{interpreter | visited: MapSet.put(visited, ip)}
+
+        interpreter
+        |> execute()
+        |> run()
     end
   end
 
@@ -64,5 +73,48 @@ defmodule Advent.Solvers.Day8 do
       |> Advent.Interpreter.run()
 
     interpreter.acc
+  end
+
+  def solve(2, input) do
+    {:ok, interpreter} =
+      input
+      |> Advent.Interpreter.new()
+      |> fix_source()
+
+    interpreter.acc
+  end
+
+  defp fix_source(%Advent.Interpreter{} = interpreter) do
+    nop_and_jmp_instructions =
+      interpreter.source
+      |> Enum.filter(fn {_index, {op, _arg}} -> op in ["nop", "jmp"] end)
+
+    fix_source(interpreter, nop_and_jmp_instructions)
+  end
+
+  defp fix_source(_, []) do
+    {:error, :could_not_fix}
+  end
+
+  defp fix_source(%Advent.Interpreter{} = interpreter, [instruction | nop_and_jmp_instructions]) do
+    IO.inspect(instruction, label: "instruction")
+
+    interpreter
+    |> swap_op(instruction)
+    |> Advent.Interpreter.run()
+    |> case do
+      {:error, _} -> fix_source(interpreter, nop_and_jmp_instructions)
+      result -> result
+    end
+  end
+
+  defp swap_op(%Advent.Interpreter{} = interpreter, {index, {"nop", arg}}) do
+    source = Map.put(interpreter.source, index, {"jmp", arg})
+    %Advent.Interpreter{interpreter | source: source}
+  end
+
+  defp swap_op(%Advent.Interpreter{} = interpreter, {index, {"jmp", arg}}) do
+    source = Map.put(interpreter.source, index, {"nop", arg})
+    %Advent.Interpreter{interpreter | source: source}
   end
 end
