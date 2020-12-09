@@ -97,8 +97,6 @@ defmodule Advent.Solvers.Day8 do
   end
 
   defp fix_source(%Advent.Interpreter{} = interpreter, [instruction | nop_and_jmp_instructions]) do
-    IO.inspect(instruction, label: "instruction")
-
     interpreter
     |> swap_op(instruction)
     |> Advent.Interpreter.run()

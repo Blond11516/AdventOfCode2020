@@ -48,9 +48,10 @@ defmodule Advent.Solvers.Day4 do
       &validate_passport_id/1
     ]
 
-    cond do
-      Enum.any?(required_keys, fn key -> !Map.has_key?(passport, key) end) -> false
-      true -> Enum.all?(validators, fn validator -> validator.(passport) end)
+    if Enum.any?(required_keys, fn key -> !Map.has_key?(passport, key) end) do
+      false
+    else
+      Enum.all?(validators, fn validator -> validator.(passport) end)
     end
   end
 
