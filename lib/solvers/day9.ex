@@ -10,6 +10,41 @@ defmodule Advent.Solvers.Day9 do
     |> find_corrupted_value(25)
   end
 
+  def solve(2, input) do
+    values =
+      input
+      |> String.trim()
+      |> String.split("\n")
+      |> Enum.map(&String.to_integer/1)
+
+    corrupted_val = find_corrupted_value(values, 25)
+
+    group = find_contiguous_sum(values, corrupted_val)
+
+    Enum.max(group) + Enum.min(group)
+  end
+
+  defp find_contiguous_sum(values, corrupted_val) do
+    find_contiguous_sum(values, corrupted_val, 2)
+  end
+
+  defp find_contiguous_sum(values, corrupted_val, group_size) do
+    groups =
+      values
+      |> Enum.filter(&(&1 < corrupted_val))
+      |> Enum.chunk_every(group_size, 1, :discard)
+
+    weakness_group =
+      groups
+      |> Enum.find(fn group -> Enum.sum(group) == corrupted_val end)
+
+    if weakness_group == nil do
+      find_contiguous_sum(values, corrupted_val, group_size + 1)
+    else
+      weakness_group
+    end
+  end
+
   defp find_corrupted_value(values, preamble_length) when is_integer(preamble_length) do
     preamble = Enum.take(values, preamble_length)
     values = Enum.drop(values, preamble_length)

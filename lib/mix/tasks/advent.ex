@@ -43,7 +43,7 @@ defmodule Mix.Tasks.Advent do
     input = data || get_raw(day)
     part_int = String.to_integer(part)
     output = solve(day, part_int, input)
-    IO.puts("Output for day #{day}\n#{output}")
+    IO.puts("Output for day #{day}, part #{part}\n#{output}")
   end
 
   defp solve(day, part, input) do
