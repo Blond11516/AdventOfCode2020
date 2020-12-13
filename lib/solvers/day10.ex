@@ -5,7 +5,6 @@ defmodule Advent.Solvers.Day10 do
   def solve(1, input) do
     differences_count =
       input
-      |> String.trim()
       |> String.split("\n")
       |> Enum.map(&String.to_integer/1)
       |> Enum.sort()
@@ -17,7 +16,6 @@ defmodule Advent.Solvers.Day10 do
   def solve(2, input) do
     {count, _memo} =
       input
-      |> String.trim()
       |> String.split("\n")
       |> Enum.map(&String.to_integer/1)
       |> Enum.sort()

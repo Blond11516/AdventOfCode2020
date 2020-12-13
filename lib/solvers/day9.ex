@@ -4,7 +4,6 @@ defmodule Advent.Solvers.Day9 do
   @impl Advent.Solver
   def solve(1, input) do
     input
-    |> String.trim()
     |> String.split("\n")
     |> Enum.map(&String.to_integer/1)
     |> find_corrupted_value(25)
@@ -13,7 +12,6 @@ defmodule Advent.Solvers.Day9 do
   def solve(2, input) do
     values =
       input
-      |> String.trim()
       |> String.split("\n")
       |> Enum.map(&String.to_integer/1)
 

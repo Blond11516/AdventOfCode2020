@@ -59,7 +59,6 @@ defmodule Advent.Solvers.Day7 do
 
   defp parse_rules(input) do
     input
-    |> String.trim()
     |> String.split("\n")
     |> Enum.map(&String.split(&1, " contain "))
     |> Enum.map(&build_bag_rule/1)

@@ -4,7 +4,6 @@ defmodule Advent.Solvers.Day6 do
   @impl Advent.Solver
   def solve(1, input) do
     input
-    |> String.trim()
     |> parse_input()
     |> Enum.map(&Enum.count/1)
     |> Enum.sum()
@@ -12,7 +11,6 @@ defmodule Advent.Solvers.Day6 do
 
   def solve(2, input) do
     input
-    |> String.trim()
     |> parse_input(:all)
     |> Enum.map(&Enum.count/1)
     |> Enum.sum()

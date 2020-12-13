@@ -94,7 +94,6 @@ defmodule Advent.Solvers.Day4 do
 
   defp parse_passports(input) do
     input
-    |> String.trim()
     |> String.split("\n\n")
     |> Enum.map(&parse_passport/1)
   end

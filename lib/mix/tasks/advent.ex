@@ -40,7 +40,11 @@ defmodule Mix.Tasks.Advent do
 
   defp run_day_part(day, part, data \\ nil) do
     IO.puts("\nExecuting day #{day}, part #{part}\n")
-    input = data || get_raw(day)
+
+    input =
+      (data || get_raw(day))
+      |> String.trim()
+
     part_int = String.to_integer(part)
     output = solve(day, part_int, input)
     IO.puts("Output for day #{day}, part #{part}\n#{output}")

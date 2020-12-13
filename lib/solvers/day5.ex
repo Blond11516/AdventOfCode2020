@@ -4,7 +4,6 @@ defmodule Advent.Solvers.Day5 do
   @impl Advent.Solver
   def solve(1, input) do
     input
-    |> String.trim()
     |> String.split()
     |> Enum.map(&find_seat/1)
     |> Enum.map(&calculate_seat_id/1)
@@ -13,7 +12,6 @@ defmodule Advent.Solvers.Day5 do
 
   def solve(2, input) do
     input
-    |> String.trim()
     |> String.split()
     |> Enum.map(&find_seat/1)
     |> MapSet.new()
@@ -26,18 +24,6 @@ defmodule Advent.Solvers.Day5 do
       |> MapSet.new(fn {row, _col} -> row end)
 
     seats = add_missing_seats(seats, present_rows)
-
-    # for row <- Enum.sort(present_rows) do
-    #   for col <- 0..7 do
-    #     if MapSet.member?(seats, {row, col}) do
-    #       IO.write(".")
-    #     else
-    #       IO.write("#")
-    #     end
-    #   end
-
-    #   IO.puts("")
-    # end
 
     for row <- present_rows,
         col <- 0..7,
