@@ -12,41 +12,55 @@ defmodule Mix.Tasks.Advent do
   use Mix.Task
 
   import Advent.Input
+  import ExProf.Macro
 
   @spec run([any]) :: :ok
-  def run([day]) do
-    run([day, "1"])
+  def run(argv) do
+    {switches, args, _} = OptionParser.parse(argv, strict: [test: :string, profile: :boolean])
+
+    run_task(args, switches)
   end
 
-  def run([day, part]) do
-    if Enum.member?(["1", "2"], part) do
-      run_day_part(day, part)
-    else
+  defp run_task([day], switches) do
+    run_task([day, "1"], switches)
+  end
+
+  defp run_task([day, part], switches) do
+    if !Enum.member?(["1", "2"], part) do
       IO.puts("Invalid part value: #{part}")
+      exit(:bad_arg)
+    end
+
+    day = String.to_integer(day)
+    part = String.to_integer(part)
+
+    data =
+      if Keyword.has_key?(switches, :test) do
+        test_data = Keyword.fetch!(switches, :test)
+        String.replace(test_data, "\\n", "\n")
+      end
+
+    if Keyword.has_key?(switches, :profile) do
+      profile do
+        run_day_part(day, part, data)
+      end
+    else
+      run_day_part(day, part, data)
     end
   end
 
-  def run([day, "--test", data]) do
-    run([day, "1", "--test", String.replace(data, "\\n", "\n")])
-  end
-
-  def run([day, part, "--test", data]) do
-    run_day_part(day, part, String.replace(data, "\\n", "\n"))
-  end
-
-  def run([]) do
+  defp run_task([], _switches) do
     IO.puts("Missing required argument <day>")
   end
 
-  defp run_day_part(day, part, data \\ nil) do
+  defp run_day_part(day, part, data) do
     IO.puts("\nExecuting day #{day}, part #{part}\n")
 
     input =
       (data || get_raw(day))
       |> String.trim()
 
-    part_int = String.to_integer(part)
-    output = solve(day, part_int, input)
+    output = solve(day, part, input)
     IO.puts("Output for day #{day}, part #{part}\n#{output}")
   end
 

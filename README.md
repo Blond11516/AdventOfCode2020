@@ -11,3 +11,6 @@ Run `mix advent day [part] [--test data]` where:
 
 ## Tests
 Alternatively, you may run `mix test` to run all days and all parts and verify that they all still give the right answer
+
+## Profiling
+To profile a given solver, run it with the `--profile` switch (ex `mix advent 1 --profile`) then run the `build_flame.sh` script to generate a flamegraph as svg.
