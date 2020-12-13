@@ -43,7 +43,8 @@ defmodule Advent.Solvers.Day11 do
 
   defp update_cell(seating_map, row_index, col_index) do
     neighbors = get_neighbors(seating_map, row_index, col_index)
-    update_cell(seating_map[row_index][col_index], neighbors)
+    %{^row_index => %{^col_index => state}} = seating_map
+    update_cell(state, neighbors)
   end
 
   defp update_cell(:empty, neighbors) do
@@ -69,18 +70,17 @@ defmodule Advent.Solvers.Day11 do
   defp update_cell(:floor, _neighbors), do: :floor
 
   defp get_neighbors(seating_map, row_index, col_index) do
-    neighbor_positions =
-      for row_diff <- -1..1,
-          col_diff <- -1..1,
-          row_diff != 0 or col_diff != 0 do
-        {row_index + row_diff, col_index + col_diff}
-      end
-
-    neighbor_positions
-    |> Enum.filter(fn {neighbor_row, neighbor_col} ->
-      Map.has_key?(seating_map, neighbor_row) and Map.has_key?(seating_map[neighbor_row], neighbor_col)
-    end)
-    |> Enum.map(fn {neighbor_row, neighbor_col} -> seating_map[neighbor_row][neighbor_col] end)
+    for row_diff <- -1..1,
+        col_diff <- -1..1,
+        neighbor_row_index = row_index + row_diff,
+        neighbor_col_index = col_index + col_diff,
+        row_diff != 0 or col_diff != 0,
+        Map.has_key?(seating_map, neighbor_row_index),
+        %{^neighbor_row_index => neighbor_row} = seating_map,
+        Map.has_key?(neighbor_row, neighbor_col_index),
+        %{^neighbor_col_index => state} = neighbor_row do
+      state
+    end
   end
 
   defp parse_seating_map(input) do
