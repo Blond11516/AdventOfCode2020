@@ -1,6 +1,8 @@
 defmodule Advent.Solvers.Day11 do
   @behaviour Advent.Solver
 
+  @diffs [{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}]
+
   @impl Advent.Solver
   def solve(1, input) do
     input
@@ -82,13 +84,6 @@ defmodule Advent.Solvers.Day11 do
   defp update_cell(:floor, _neighbors, _tolerance), do: :floor
 
   defp get_neighbors(seating_map, row_index, col_index, width, height, direct_neighbors?) do
-    diffs =
-      for row_diff <- -1..1,
-          col_diff <- -1..1,
-          row_diff != 0 or col_diff != 0 do
-        {row_diff, col_diff}
-      end
-
     upper_limit =
       if direct_neighbors? do
         1
@@ -96,7 +91,7 @@ defmodule Advent.Solvers.Day11 do
         max(width, height)
       end
 
-    Enum.map(diffs, fn {row_diff, col_diff} ->
+    Enum.map(@diffs, fn {row_diff, col_diff} ->
       Enum.reduce_while(1..upper_limit, nil, fn factor, _acc ->
         current_row_index = row_index + row_diff * factor
         current_col_index = col_index + col_diff * factor
