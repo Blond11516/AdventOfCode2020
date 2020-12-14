@@ -17,10 +17,6 @@ defmodule Advent.Solvers.Day13 do
       |> Enum.min(fn {_, a}, {_, b} -> a <= b end)
 
     id * diff
-
-    # ids
-    # |> Enum.map(fn id -> {id, a - rem(timestamp, id)} end)
-    # |> Enum.min(fn a, b -> a - rem(timestamp, a) <= a - rem(timestamp, b) end)
   end
 
   defp parse_input(input) do
