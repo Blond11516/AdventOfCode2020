@@ -1,5 +1,5 @@
 defmodule Ship do
-  defstruct position: {0, 0}, orientation: :east
+  defstruct position: {0, 0}, orientation: :east, waypoint_position: {10, 1}
 
   @rotations %{
     {:left, :north} => :west,
@@ -56,6 +56,64 @@ defmodule Ship do
     execute(ship, [{direction, val - 90} | rest])
   end
 
+  def execute_waypoint(ship, []), do: ship
+
+  def execute_waypoint(%__MODULE__{} = ship, [{:north, val} | rest]) do
+    {x, y} = ship.waypoint_position
+
+    ship = %__MODULE__{ship | waypoint_position: {x, y + val}}
+    execute_waypoint(ship, rest)
+  end
+
+  def execute_waypoint(%__MODULE__{} = ship, [{:east, val} | rest]) do
+    {x, y} = ship.waypoint_position
+
+    ship = %__MODULE__{ship | waypoint_position: {x + val, y}}
+    execute_waypoint(ship, rest)
+  end
+
+  def execute_waypoint(%__MODULE__{} = ship, [{:south, val} | rest]) do
+    {x, y} = ship.waypoint_position
+
+    ship = %__MODULE__{ship | waypoint_position: {x, y - val}}
+    execute_waypoint(ship, rest)
+  end
+
+  def execute_waypoint(%__MODULE__{} = ship, [{:west, val} | rest]) do
+    {x, y} = ship.waypoint_position
+
+    ship = %__MODULE__{ship | waypoint_position: {x - val, y}}
+    execute_waypoint(ship, rest)
+  end
+
+  def execute_waypoint(%__MODULE__{} = ship, [{:forward, val} | rest]) do
+    {ship_x, ship_y} = ship.position
+    {waypoint_x, waypoint_y} = ship.waypoint_position
+
+    ship = %__MODULE__{ship | position: {ship_x + waypoint_x * val, ship_y + waypoint_y * val}}
+    execute_waypoint(ship, rest)
+  end
+
+  def execute_waypoint(%__MODULE__{} = ship, [{direction, 0} | rest]) when direction in [:left, :right] do
+    execute_waypoint(ship, rest)
+  end
+
+  def execute_waypoint(%__MODULE__{} = ship, [{:right, val} | rest]) do
+    {x, y} = ship.waypoint_position
+
+    ship = %__MODULE__{ship | waypoint_position: {y, -x}}
+
+    execute_waypoint(ship, [{:right, val - 90} | rest])
+  end
+
+  def execute_waypoint(%__MODULE__{} = ship, [{:left, val} | rest]) do
+    {x, y} = ship.waypoint_position
+
+    ship = %__MODULE__{ship | waypoint_position: {-y, x}}
+
+    execute_waypoint(ship, [{:left, val - 90} | rest])
+  end
+
   def manhattan_distance(%__MODULE__{} = ship) do
     {x, y} = ship.position
 
@@ -74,6 +132,16 @@ defmodule Advent.Solvers.Day12 do
 
     Ship.new()
     |> Ship.execute(instructions)
+    |> Ship.manhattan_distance()
+  end
+
+  def solve(2, input) do
+    instructions =
+      input
+      |> parse_instruction_list()
+
+    Ship.new()
+    |> Ship.execute_waypoint(instructions)
     |> Ship.manhattan_distance()
   end
 
