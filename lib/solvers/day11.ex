@@ -5,7 +5,15 @@ defmodule Advent.Solvers.Day11 do
   def solve(1, input) do
     input
     |> parse_seating_map()
-    |> run()
+    |> run(4)
+    |> count_occupied_seats()
+  end
+
+  @impl Advent.Solver
+  def solve(2, input) do
+    input
+    |> parse_seating_map()
+    |> run(5, false)
     |> count_occupied_seats()
   end
 
@@ -20,14 +28,14 @@ defmodule Advent.Solvers.Day11 do
     end)
   end
 
-  defp run(seating_map) do
+  defp run(seating_map, tolerance, direct_neighbors? \\ true) do
     new_seating_map =
       seating_map
       |> Map.new(fn {row_index, row} ->
         new_row =
           row
           |> Map.new(fn {col_index, _cell} ->
-            new_state = update_cell(seating_map, row_index, col_index)
+            new_state = update_cell(seating_map, row_index, col_index, tolerance, direct_neighbors?)
             {col_index, new_state}
           end)
 
@@ -37,17 +45,21 @@ defmodule Advent.Solvers.Day11 do
     if seating_map == new_seating_map do
       seating_map
     else
-      run(new_seating_map)
+      run(new_seating_map, tolerance, direct_neighbors?)
     end
   end
 
-  defp update_cell(seating_map, row_index, col_index) do
-    neighbors = get_neighbors(seating_map, row_index, col_index)
+  defp update_cell(seating_map, row_index, col_index, tolerance, direct_neighbors?) do
+    %{0 => row} = seating_map
+    width = Enum.count(row)
+    height = Enum.count(seating_map)
+
+    neighbors = get_neighbors(seating_map, row_index, col_index, width, height, direct_neighbors?)
     %{^row_index => %{^col_index => state}} = seating_map
-    update_cell(state, neighbors)
+    update_cell(state, neighbors, tolerance)
   end
 
-  defp update_cell(:empty, neighbors) do
+  defp update_cell(:empty, neighbors, _tolerance) do
     nb_occupied = neighbors |> Enum.count(&(&1 == :occupied))
 
     if nb_occupied == 0 do
@@ -57,30 +69,58 @@ defmodule Advent.Solvers.Day11 do
     end
   end
 
-  defp update_cell(:occupied, neighbors) do
+  defp update_cell(:occupied, neighbors, tolerance) do
     nb_occupied = neighbors |> Enum.count(&(&1 == :occupied))
 
-    if nb_occupied >= 4 do
+    if nb_occupied >= tolerance do
       :empty
     else
       :occupied
     end
   end
 
-  defp update_cell(:floor, _neighbors), do: :floor
+  defp update_cell(:floor, _neighbors, _tolerance), do: :floor
 
-  defp get_neighbors(seating_map, row_index, col_index) do
-    for row_diff <- -1..1,
-        col_diff <- -1..1,
-        neighbor_row_index = row_index + row_diff,
-        neighbor_col_index = col_index + col_diff,
-        row_diff != 0 or col_diff != 0,
-        Map.has_key?(seating_map, neighbor_row_index),
-        %{^neighbor_row_index => neighbor_row} = seating_map,
-        Map.has_key?(neighbor_row, neighbor_col_index),
-        %{^neighbor_col_index => state} = neighbor_row do
-      state
-    end
+  defp get_neighbors(seating_map, row_index, col_index, width, height, direct_neighbors?) do
+    diffs =
+      for row_diff <- -1..1,
+          col_diff <- -1..1,
+          row_diff != 0 or col_diff != 0 do
+        {row_diff, col_diff}
+      end
+
+    upper_limit =
+      if direct_neighbors? do
+        1
+      else
+        max(width, height)
+      end
+
+    Enum.map(diffs, fn {row_diff, col_diff} ->
+      Enum.reduce_while(1..upper_limit, nil, fn factor, _acc ->
+        current_row_index = row_index + row_diff * factor
+        current_col_index = col_index + col_diff * factor
+
+        case seating_map do
+          %{^current_row_index => row} ->
+            case row do
+              %{^current_col_index => state} ->
+                if state == :floor do
+                  {:cont, nil}
+                else
+                  {:halt, state}
+                end
+
+              _ ->
+                {:halt, nil}
+            end
+
+          _ ->
+            {:halt, nil}
+        end
+      end)
+    end)
+    |> Enum.filter(&(&1 != nil))
   end
 
   defp parse_seating_map(input) do
