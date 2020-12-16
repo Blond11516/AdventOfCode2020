@@ -6,19 +6,26 @@ defmodule Advent.Solvers.Day15 do
     input
     |> String.split(",")
     |> Enum.map(&String.to_integer/1)
-    |> run()
+    |> run(2020)
   end
 
-  defp run(starting_numbers) do
+  def solve(2, input) do
+    input
+    |> String.split(",")
+    |> Enum.map(&String.to_integer/1)
+    |> run(30_000_000)
+  end
+
+  defp run(starting_numbers, target_number) do
     starting_numbers
     |> Enum.with_index(1)
     |> Map.new()
-    |> run(List.last(starting_numbers), length(starting_numbers))
+    |> run(List.last(starting_numbers), length(starting_numbers), target_number)
   end
 
-  defp run(_history, last_number, 2020), do: last_number
+  defp run(_history, last_number, last_turn, target_number) when last_turn == target_number, do: last_number
 
-  defp run(history, last_number, last_turn) do
+  defp run(history, last_number, last_turn, target_number) do
     %{^last_number => number_history} = history
 
     next_number =
@@ -35,6 +42,6 @@ defmodule Advent.Solvers.Day15 do
         previous_turn -> {previous_turn, current_turn}
       end)
 
-    run(history, next_number, current_turn)
+    run(history, next_number, current_turn, target_number)
   end
 end
