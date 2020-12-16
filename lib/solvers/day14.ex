@@ -10,6 +10,81 @@ defmodule Advent.Solvers.Day14 do
     |> Enum.sum()
   end
 
+  def solve(2, input) do
+    input
+    |> parse_input()
+    |> run2()
+    |> Enum.map(&elem(&1, 1))
+    |> Enum.sum()
+  end
+
+  defp run2(program) do
+    run2(program, %{})
+  end
+
+  defp run2([], memory), do: memory
+
+  defp run2([{mask, values} | rest], memory) do
+    memory = run_mask2(mask, values, memory)
+    run2(rest, memory)
+  end
+
+  defp run_mask2(mask, values, memory) do
+    mask = String.graphemes(mask)
+
+    values
+    |> Enum.reduce(memory, fn {address, val}, memory ->
+      address =
+        address
+        |> Integer.digits(2)
+
+      zeros =
+        Stream.cycle([0])
+        |> Enum.take(36 - length(address))
+
+      address = zeros ++ address
+
+      addresses =
+        [address, mask]
+        |> Enum.zip()
+        |> Enum.map(fn {digit, mask} ->
+          case mask do
+            "X" -> "X"
+            "1" -> "1"
+            "0" -> Integer.to_string(digit)
+          end
+        end)
+        |> get_floating_addresses()
+
+      Enum.reduce(addresses, memory, &Map.put(&2, &1, val))
+    end)
+  end
+
+  defp get_floating_addresses(address_digits) do
+    address_digits
+    |> Enum.join()
+    |> String.split("X")
+    |> Enum.map(&String.graphemes/1)
+    |> join_floating_address_parts()
+    |> Enum.map(&Enum.join/1)
+    |> Enum.map(&String.to_integer/1)
+    |> Enum.map(&Integer.digits/1)
+    |> Enum.map(&Integer.undigits(&1, 2))
+  end
+
+  defp join_floating_address_parts([part]), do: [part]
+
+  defp join_floating_address_parts([head | rest]) do
+    last_digits =
+      rest
+      |> join_floating_address_parts()
+
+    variant_1 = Enum.map(last_digits, fn last_digits -> head ++ ["1"] ++ last_digits end)
+    variant_0 = Enum.map(last_digits, fn last_digits -> head ++ ["0"] ++ last_digits end)
+
+    variant_1 ++ variant_0
+  end
+
   defp run(program) do
     run(program, %{})
   end
