@@ -67,9 +67,7 @@ defmodule Advent.Solvers.Day14 do
     |> Enum.map(&String.graphemes/1)
     |> join_floating_address_parts()
     |> Enum.map(&Enum.join/1)
-    |> Enum.map(&String.to_integer/1)
-    |> Enum.map(&Integer.digits/1)
-    |> Enum.map(&Integer.undigits(&1, 2))
+    |> Enum.map(&String.to_integer(&1, 2))
   end
 
   defp join_floating_address_parts([part]), do: [part]
